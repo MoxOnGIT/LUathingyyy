@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Lumia UI</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			font-family: Arial, sans-serif;
+			background: rgba(0, 0, 0, 0.0);
+			/* Semi-transparent black */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		.view-container {
+			width: 500px;
+			height: 600px;
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background: rgba(0, 0, 0, 0.0);
+			border-radius: 15px;
+			transition: transform 0.5s ease;
+		}
+
+		.menu {
+			width: 350px;
+			border-radius: 10px;
+			background: rgba(0, 0, 0, 0.6);
+			color: white;
+			box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+			overflow: hidden;
+			position: relative;
+			outline: none;
+			transition: transform 0.5s ease;
+		}
+
+		.menu::before {
+			content: '';
+			position: absolute;
+			width: 100%;
+			height: 35px;
+			background: black;
+			border: 1px solid #ff9ec0;
+			box-sizing: border-box;
+			transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+			pointer-events: none;
+			transform: translateY(var(--translate-y, 120px));
+		}
+
+		.menu-header {
+			background-image: url('https://r2.fivemanage.com/YYzzP6U6HRyU9RWJUS3OZ/images/anime-pink-hair.gif');
+			background-size: cover;
+			background-position: center;
+			padding: 30px;
+			height: 60px;
+		}
+
+		.menu-footer {
+			background: #000;
+			height: 20px;
+			width: 100%;
+		}
+
+		.menu-item {
+			padding: 8px 15px;
+			cursor: pointer;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: transparent;
+			color: white;
+			outline: none;
+			height: 35px;
+			box-sizing: border-box;
+			position: relative;
+			z-index: 1;
+		}
+
+		.menu-item span {
+			font-size: 14px;
+		}
+
+		.menu-item .arrow {
+			margin-left: auto;
+			position: absolute;
+			right: 15px;
+			transform: rotate(0deg);
+			/* Pointing right initially */
+			transition: transform 0.3s ease;
+		}
+
+		.menu-item.open .arrow {
+			transform: rotate(90deg);
+			/* Pointing down when the menu is opened */
+		}
+
+		.menu-item-content {
+			max-height: 0;
+			overflow: hidden;
+			background: #2c2c2c;
+			color: #aaa;
+			transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			padding-left: 15px;
+			font-size: 14px;
+		}
+
+		.menu-item.open .menu-item-content {
+			max-height: 100px;
+		}
+
+		.scroll-track {
+			position: absolute;
+			top: 228px;
+			right: 55px;
+			width: 10px;
+			height: 245px;
+			background: rgba(0, 0, 0, 0.4);
+			border-radius: 5px;
+			z-index: 99;
+		}
+
+		.scroll-indicator {
+			position: absolute;
+			top: 228px;
+			right: 55px;
+			width: 10px;
+			height: 35px;
+			background: #ff9ec0;
+			border-radius: 5px;
+			transition: top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+			z-index: 100;
+		}
+
+		.hidden {
+			display: none;
+		}
+
+		/* Add 3D transform style */
+		.tilted {
+			transform: perspective(1500px) rotateY(15deg);
+		}
+	</style>
+</head>
+
+<body>
+	<div class="view-container">
+		<div class="scroll-track"></div>
+		<div class="scroll-indicator"></div>
+		<div class="menu" tabindex="0">
+			<div class="menu-header"></div>
+			<div class="menu-item" tabindex="1" data-menu="self">
+				<span>Self</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-item self-option hidden" tabindex="2">
+				<span>God Mode</span>
+			</div>
+			<div class="menu-item self-option hidden" tabindex="3">
+				<span>Infinite Health</span>
+			</div>
+			<div class="menu-item self-option hidden" tabindex="4">
+				<span>No Clip</span>
+			</div>
+			<div class="menu-item self-option hidden" tabindex="5">
+				<span>Back</span>
+			</div>
+			<div class="menu-item main-option" tabindex="6">
+				<span>Online</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-item main-option" tabindex="7">
+				<span>Vehicle</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-item main-option" tabindex="8">
+				<span>Weapon</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-item main-option" tabindex="9">
+				<span>Visuals</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-item main-option" tabindex="10">
+				<span>Misc</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-item main-option" tabindex="11">
+				<span>Settings</span>
+				<span class="arrow">&#9654;</span>
+			</div>
+			<div class="menu-footer"></div>
+		</div>
+	</div>
+	<script>
+		const menu = document.querySelector('.menu');
+		const items = document.querySelectorAll('.menu-item');
+		const scrollIndicator = document.querySelector('.scroll-indicator');
+		const mainOptions = document.querySelectorAll('.main-option');
+		const selfOptions = document.querySelectorAll('.self-option');
+		let currentIndex = 0;
+		let is3DMode = false;
+		let isInSelfMenu = false;
+
+		const updateHighlightAndScroll = () => {
+			const visibleItems = isInSelfMenu ? selfOptions : document.querySelectorAll('.menu-item:not(.hidden)');
+			const itemHeight = items[0].offsetHeight;
+			menu.style.setProperty('--translate-y', `${(currentIndex * itemHeight) + 120}px`);
+			scrollIndicator.style.top = `${currentIndex * itemHeight + 228}px`;
+		};
+
+		const toggleSelfMenu = () => {
+			isInSelfMenu = !isInSelfMenu;
+			if (isInSelfMenu) {
+				mainOptions.forEach(item => item.classList.add('hidden'));
+				selfOptions.forEach(item => item.classList.remove('hidden'));
+			} else {
+				mainOptions.forEach(item => item.classList.remove('hidden'));
+				selfOptions.forEach(item => item.classList.add('hidden'));
+			}
+			currentIndex = 0;
+			updateHighlightAndScroll();
+		};
+
+		document.addEventListener('keydown', (e) => {
+			const visibleItems = isInSelfMenu ? selfOptions : document.querySelectorAll('.menu-item:not(.hidden)');
+
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				currentIndex = (currentIndex + 1) % visibleItems.length;
+				updateHighlightAndScroll();
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				currentIndex = (currentIndex - 1 + visibleItems.length) % visibleItems.length;
+				updateHighlightAndScroll();
+			} else if (e.key === 'Enter') {
+				e.preventDefault();
+				const selectedItem = visibleItems[currentIndex];
+
+				if (selectedItem.dataset.menu === 'self' && !isInSelfMenu) {
+					toggleSelfMenu();
+				} else if (isInSelfMenu && selectedItem.textContent.trim() === 'Back') {
+					toggleSelfMenu();
+				}
+			} else if (e.key === '8') {
+				e.preventDefault();
+				is3DMode = !is3DMode;
+				if (is3DMode) {
+					menu.classList.add('tilted');
+					document.querySelector('.view-container').classList.add('tilted');
+				} else {
+					menu.classList.remove('tilted');
+					document.querySelector('.view-container').classList.remove('tilted');
+				}
+			}
+		});
+
+		updateHighlightAndScroll();
+	</script>
+</body>
+
+</html>
