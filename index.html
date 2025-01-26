@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumia UI</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: rgba(0, 0, 0, 0.0);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .view-container {
+            width: 500px;
+            height: 600px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.0);
+            border-radius: 15px;
+            transition: transform 0.5s ease, opacity 0.3s ease;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+
+        .menu {
+            width: 350px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+            outline: none;
+            transition: transform 0.5s ease;
+        }
+
+        .menu::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 35px;
+            background: black;
+            border: 1px solid #ff9ec0;
+            box-sizing: border-box;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: none;
+            transform: translateY(var(--translate-y, 120px));
+        }
+
+        .menu-header {
+            background-image: url('https://r2.fivemanage.com/YYzzP6U6HRyU9RWJUS3OZ/images/anime-pink-hair.gif');
+            background-size: cover;
+            background-position: center;
+            padding: 30px;
+            height: 60px;
+        }
+
+        .menu-footer {
+            background: #000;
+            height: 20px;
+            width: 100%;
+        }
+
+        .menu-item {
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: transparent;
+            color: white;
+            outline: none;
+            height: 35px;
+            box-sizing: border-box;
+            position: relative;
+            z-index: 1;
+            transition: background-color 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 158, 192, 0.2);
+        }
+
+        .menu-item span {
+            font-size: 14px;
+        }
+
+        .menu-item .arrow {
+            margin-left: auto;
+            position: absolute;
+            right: 15px;
+            transform: rotate(0deg);
+            transition: transform 0.3s ease;
+        }
+
+        .menu-item.open .arrow {
+            transform: rotate(90deg);
+        }
+
+        .scroll-track {
+            position: absolute;
+            top: 228px;
+            right: 55px;
+            width: 10px;
+            height: 245px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 5px;
+            z-index: 99;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            top: 228px;
+            right: 55px;
+            width: 10px;
+            height: 35px;
+            background: #ff9ec0;
+            border-radius: 5px;
+            transition: top 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tilted {
+            transform: perspective(1500px) rotateY(15deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="view-container">
+        <div class="scroll-track"></div>
+        <div class="scroll-indicator"></div>
+        <div class="menu" tabindex="0">
+            <div class="menu-header"></div>
+            <div class="menu-item" tabindex="1" data-menu="self">
+                <span>Self</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-item self-option hidden" tabindex="2" data-action="godmode">
+                <span>God Mode</span>
+            </div>
+            <div class="menu-item self-option hidden" tabindex="3" data-action="infinitehealth">
+                <span>Infinite Health</span>
+            </div>
+            <div class="menu-item self-option hidden" tabindex="4" data-action="noclip">
+                <span>No Clip</span>
+            </div>
+            <div class="menu-item self-option hidden" tabindex="5" data-action="back">
+                <span>Back</span>
+            </div>
+            <div class="menu-item main-option" tabindex="6" data-menu="online">
+                <span>Online</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-item main-option" tabindex="7" data-menu="vehicle">
+                <span>Vehicle</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-item main-option" tabindex="8" data-menu="weapon">
+                <span>Weapon</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-item main-option" tabindex="9" data-menu="visuals">
+                <span>Visuals</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-item main-option" tabindex="10" data-menu="misc">
+                <span>Misc</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-item main-option" tabindex="11" data-menu="settings">
+                <span>Settings</span>
+                <span class="arrow">&#9654;</span>
+            </div>
+            <div class="menu-footer"></div>
+        </div>
+    </div>
+
+    <script>
+        const menu = document.querySelector('.menu');
+        const items = document.querySelectorAll('.menu-item');
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+        const mainOptions = document.querySelectorAll('.main-option');
+        const selfOptions = document.querySelectorAll('.self-option');
+        const viewContainer = document.querySelector('.view-container');
+        let currentIndex = 0;
+        let is3DMode = false;
+        let isInSelfMenu = false;
+
+        window.addEventListener('message', function(event) {
+            const item = event.data;
+            console.log('Received message:', item);  // Debugging log
+            if (item.type === "ui") {
+                document.body.style.display = item.status ? "flex" : "none";
+                if (item.status) {
+                    viewContainer.style.opacity = '1';
+                    viewContainer.style.transform = 'scale(1)';
+                } else {
+                    viewContainer.style.opacity = '0';
+                    viewContainer.style.transform = 'scale(0.95)';
+                }
+            }
+        });
+
+        function handleMenuAction(action) {
+            fetch(`https://${GetParentResourceName()}/${action}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+                body: JSON.stringify({})
+            });
+            playMenuSound('select');
+        }
+
+        function playMenuSound(type) {
+            const audio = new Audio();
+            audio.src = type === 'navigate' ? 'sounds/navigate.mp3' : 'sounds/select.mp3';
+            audio.volume = 0.2;
+            audio.play().catch(() => {});
+        }
+
+        const updateHighlightAndScroll = () => {
+            const visibleItems = isInSelfMenu ? selfOptions : document.querySelectorAll('.menu-item:not(.hidden)');
+            const itemHeight = items[0].offsetHeight;
+            menu.style.setProperty('--translate-y', `${(currentIndex * itemHeight) + 120}px`);
+            scrollIndicator.style.top = `${currentIndex * itemHeight + 228}px`;
+            playMenuSound('navigate');
+        };
+
+        const toggleSelfMenu = () => {
+            isInSelfMenu = !isInSelfMenu;
+            if (isInSelfMenu) {
+                mainOptions.forEach(item => item.classList.add('hidden'));
+                selfOptions.forEach(item => item.classList.remove('hidden'));
+            } else {
+                mainOptions.forEach(item => item.classList.remove('hidden'));
+                selfOptions.forEach(item => item.classList.add('hidden'));
+            }
+            currentIndex = 0;
+            updateHighlightAndScroll();
+        };
+
+        document.addEventListener('keydown', (e) => {
+            const visibleItems = isInSelfMenu ? selfOptions : document.querySelectorAll('.menu-item:not(.hidden)');
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                handleMenuAction('exit');
+                return;
+            }
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentIndex = (currentIndex + 1) % visibleItems.length;
+                updateHighlightAndScroll();
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentIndex = (currentIndex - 1 + visibleItems.length) % visibleItems.length;
+                updateHighlightAndScroll();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const selectedItem = visibleItems[currentIndex];
+                
+                if (selectedItem.dataset.menu === 'self' && !isInSelfMenu) {
+                    toggleSelfMenu();
+                } else if (isInSelfMenu && selectedItem.dataset.action === 'back') {
+                    toggleSelfMenu();
+                } else if (selectedItem.dataset.action) {
+                    handleMenuAction(selectedItem.dataset.action);
+                }
+            } else if (e.key === '8') {
+                e.preventDefault();
+                is3DMode = !is3DMode;
+                if (is3DMode) {
+                    menu.classList.add('tilted');
+                    viewContainer.classList.add('tilted');
+                } else {
+                    menu.classList.remove('tilted');
+                    viewContainer.classList.remove('tilted');
+                }
+            }
+        });
+
+        items.forEach(item => {
+            item.addEventListener('mouseenter', () => playMenuSound('navigate'));
+            item.addEventListener('click', () => {
+                if (item.dataset.action) {
+                    handleMenuAction(item.dataset.action);
+                }
+            });
+        });
+
+        updateHighlightAndScroll();
+    </script>
+</body>
+</html>
